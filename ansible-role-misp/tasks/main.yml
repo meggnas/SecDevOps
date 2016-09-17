@@ -11,3 +11,5 @@
   - include: worker.yml
   - include: harden.yml
     when: enable_harden
+    tags:
+      - harden

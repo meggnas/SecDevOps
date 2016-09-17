@@ -21,9 +21,9 @@
         SSLUseStapling {{ apache_ssl_stapling_status }}
         SSLStaplingResponderTimeout {{ apache_ssl_stapling_rtimeout }}
         SSLStaplingReturnResponderErrors {{ apache_ssl_stapling_rerrors }}
-        # SSLSecssionTickets option is available on Apache2 >= 2.4.11. Current version is 2.4.7.
+        ## SSLSecssionTickets option is available on Apache2 >= 2.4.11. Current version is 2.4.7.
         # SSLSessionTickets {{ apache_ssl_tickets }}
-        # SSLOpenSSLConfcmd requires OpenSSL 1.0.2. Current version is 1.0.1f.
+        ## SSLOpenSSLConfcmd requires OpenSSL 1.0.2. Current version is 1.0.1f.
         # SSLOpenSSLConfCmd {{ apache_ssl_conf_cmd }}
 
         # HSTS requires Apache2 headers module enabled.

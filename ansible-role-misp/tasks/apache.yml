@@ -17,6 +17,38 @@
       mode=0644
     notify: restart apache
 
+  - name: Get apache2 version
+    shell: "apache2 -v | head -n1 | awk -F '[. ]' '{ print $5 }'"
+    register: apache_version
+    changed_when: false
+
+  - name: "Set 'SSLSessionTickts off' for MISP vhost"
+    become: true
+    lineinfile:
+      dest: "{{ apache_sites_available_path }}/misp-ssl.conf"
+      regexp: "^        # SSLSessionTickets"
+      line: "        SSLSessionTickets {{ apache_ssl_tickets }}"
+      owner: root
+      group: root
+      mode: 0644
+    when: apache_version.stdout|int >= 11
+
+  - name: Get openssl verison
+    shell: "openssl version | awk -F ' ' '{ print $1,$2 }'"
+    register: openssl_version
+    changed_when: false
+
+  - name: "Set 'SSLOpenSSLConfCmd' for MISP vhsot"
+    become: true
+    lineinfile:
+      dest: "{{ apache_sites_available_path }}/misp-ssl.conf"
+      regexp: "^        # SSLOpenSSLConfCmd"
+      line: "        SSLOpenSSLConfCmd {{ apache_ssl_conf_cmd }}"
+      owner: root
+      group: root
+      mode: 0644
+    when: "'OpenSSL 1.0.2' in openssl_version.stdout"
+
   - name: Enable MISP vhost
     become: true
     file:

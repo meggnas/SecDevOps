@@ -6,6 +6,8 @@ mysql_user: misp
 mysql_pass: your_password
 mysql_root_user: root
 mysql_root_pass: ""
+enable_change_root_pass: true
+mysql_root_new_pass: toor
 
 #  ----- PHP -----
 php_disable_functions: "pcntl_alarm,pcntl_fork,pcntl_waitpid,pcntl_wait,pcntl_wifexited,pcntl_wifstopped,pcntl_wifsignaled,pcntl_wexitstatus,pcntl_wtermsig,pcntl_wstopsig,pcntl_signal,pcntl_signal_dispatch,pcntl_get_last_error,pcntl_strerror,pcntl_sigprocmask,pcntl_sigwaitinfo,pcntl_sigtimedwait,pcntl_exec,pcntl_getpriority,pcntl_setpriority,exec,system,shell_exec,passthru,"
@@ -32,7 +34,7 @@ ssl_cert_locality: "State"
 ssl_cert_country: "SC"
 ssl_cert_subject: "/C={{ ssl_cert_country }}/ST={{ ssl_cert_state }}/L={{ ssl_cert_locality }}/O={{ ssl_cert_organization }}/CN={{ ssl_cert_common_name }}"
 
-# ----- Apache site/vhsot vars -----
+# ----- Apache site/vhost vars -----
 apache_enable_mods:
   - rewrite
   - headers

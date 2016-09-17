@@ -96,7 +96,7 @@
   # Take advantge of Ansible's password lookup plugin to generate 32bit salt.
   # The generated password (i.e: salt) is then set as a host fact to be used later in the playbook.
   # This will generate a local file on the Ansible master with a file name as the ansible_fqdn.
-  # This runs when enable_auto_salt is set to ture
+  # This runs when enable_auto_salt is set to ture in variables default/main.yml
   - name: Auto salt generation is enabled, generating random salt
     set_fact: misp_salt={{ lookup('password','{{ ansible_fqdn }} length=32 chars=ascii_letters,numbers,digits,punctuation') }}
     when: enable_auto_salt

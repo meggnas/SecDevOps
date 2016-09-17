@@ -102,8 +102,42 @@
 
   - name: Remove MySQL root remote login
     become: true
-    command: 'mysql -u {{ mysql_root_user }} -NBe "{{ item }}"'
-    with_items:
-      - DELETE FROM mysql.user WHERE User='root' AND Host NOT IN ('localhost', '127.0.0.1', '::1')
+    command: mysql -u {{ mysql_root_user }} -NBe 'DELETE FROM mysql.user WHERE user = "{{ mysql_root_user }}" AND host NOT IN ("localhost", "127.0.0.1", "::1")'
+
+  - name: List MySQL hosts for the root user
+    become: true
+    command: mysql -u {{ mysql_root_user }} -NBe 'SELECT host FROM mysql.user WHERE user = "{{ mysql_root_user }}"'
+    register: root_mysql_hosts
+    changed_when: false
+    always_run: true
+
+  - name: Get MySQL minor version
+    shell: "mysql --version | awk -F '[ ,.]' '{ print $8 }'"
+    register: mysql_minor_version
+    changed_when: false
+
+  - name: Get MySQL release version
+    shell: "mysql --version | awk -F '[ ,.]' '{ print $9 }'"
+    register: mysql_release_version
+    changed_when: false
+
+  # Issues identified for the two upcoming tasks:
+  # 1. host_all cannot be used becuase of a bug. See bug report at: 
+  # 2. mysql_user does NOT always and effectively change the password.
+  # 3. simply iterating through hardcoded mysql hosts may NOT work due version differences.
+  # Eventually we defer to direct MySQL command.
+  # Additional information: http://dev.mysql.com/doc/refman/5.7/en/resetting-permissions.html
+
+  - name: Change MySQL (5.7.6 and later) root default password
+    become: true
+    shell: mysql -u {{ mysql_root_user }} -NBe 'ALTER USER "{{ mysql_root_user }}"@"{{ item }}" IDENTIFIED WITH MYSQL_NATIVE_PASSWORD BY "{{ mysql_root_new_pass }}";'
+    with_items: "{{ root_mysql_hosts.stdout_lines }}"
+    when: mysql_minor_version.stdout|int >= 7 and mysql_release_version.stdout|int >= 6
+
+  - name: Change MySQL (5.7.5 and earlier) root default password
+    become: true
+    shell: mysql -u {{ mysql_root_user }} -NBe 'SET PASSWORD FOR "{{ mysql_root_user }}"@"{{ item }}" = PASSWORD("{{ mysql_root_new_pass }}");'
+    with_items: "{{ root_mysql_hosts.stdout_lines }}"
+    when: mysql_minor_version.stdout|int < 7
 
   # For removing privileges on test database, see https://github.com/ansible/ansible/issues/5125.
